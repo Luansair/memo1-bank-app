@@ -1,7 +1,9 @@
 package com.aninfo;
 
 import com.aninfo.model.Account;
+import com.aninfo.model.Transaction;
 import com.aninfo.service.AccountService;
+import com.aninfo.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -26,6 +28,8 @@ public class Memo1BankApp {
 
 	@Autowired
 	private AccountService accountService;
+	@Autowired
+	private TransactionService transactionService;
 
 	public static void main(String[] args) {
 		SpringApplication.run(Memo1BankApp.class, args);
@@ -65,16 +69,32 @@ public class Memo1BankApp {
 		accountService.deleteById(cbu);
 	}
 
-	@PutMapping("/accounts/{cbu}/withdraw")
-	public Account withdraw(@PathVariable Long cbu, @RequestParam Double sum) {
-		return accountService.withdraw(cbu, sum);
+	@PostMapping("/accounts/{cbu}/transactions")
+	public Transaction createTransaction(@RequestBody Transaction transaction, @PathVariable Long cbu) {
+		transaction.setCbu(cbu);
+		if (transaction.getType().equals("withdraw")) {
+			accountService.withdraw(cbu, transaction.getSum());
+		} else if (transaction.getType().equals("deposit")) {
+			accountService.deposit(cbu, transaction.getSum());
+		}
+
+		return transactionService.createTransaction(transaction);
 	}
 
-	@PutMapping("/accounts/{cbu}/deposit")
-	public Account deposit(@PathVariable Long cbu, @RequestParam Double sum) {
-		return accountService.deposit(cbu, sum);
+	@GetMapping("/accounts/{cbu}/transactions")
+	public Collection<Transaction> getTransactions(@PathVariable Long cbu) {
+		return transactionService.getTransactionsByCbu(cbu);
 	}
 
+	@GetMapping("/accounts/{cbu}/transactions/{id}")
+	public Transaction getTransaction(@PathVariable Long id) {
+		return transactionService.getTransaction(id);
+	}
+
+	@DeleteMapping("/accounts/{cbu}/transactions/{id}")
+	public void deleteTransaction(@PathVariable Long id) {
+		transactionService.deleteTransaction(id);
+	}
 	@Bean
 	public Docket apiDocket() {
 		return new Docket(DocumentationType.SWAGGER_2)
