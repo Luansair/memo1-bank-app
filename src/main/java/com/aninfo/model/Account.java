@@ -10,12 +10,14 @@ public class Account {
     private Long cbu;
 
     private Double balance;
+    private Double promo_profit;
 
     public Account(){
     }
 
     public Account(Double balance) {
         this.balance = balance;
+        this.promo_profit = 0.0;
     }
 
     public Long getCbu() {
@@ -32,6 +34,14 @@ public class Account {
 
     public void setBalance(Double balance) {
         this.balance = balance;
+    }
+
+    public void setPromoProfit(Double profit) {
+        promo_profit = profit;
+    }
+
+    public Double getPromoProfit() {
+        return promo_profit;
     }
 
 }
